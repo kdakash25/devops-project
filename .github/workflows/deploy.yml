@@ -1,53 +1,193 @@
-name: DevOps Pipeline
+name: Deploy Node.js App
 
 on:
   push:
     branches:
       - main
 
+env:
+  AWS_REGION: ap-south-1
+  ECR_URI: 949449004484.dkr.ecr.ap-south-1.amazonaws.com/nodejs-devops
+  ECS_CLUSTER: nodejs-cluster
+  ECS_SERVICE: nodejs-service
+
 jobs:
-
-  build:
-
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - uses: actions/checkout@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
-    - name: Docker Login
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+      # 🔥 MANUAL LOGIN (MOST RELIABLE FIX)
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region $AWS_REGION \
+          | docker login --username AWS --password-stdin 949449004484.dkr.ecr.ap-south-1.amazonaws.com
 
-    - name: Build Docker Image
-      run: |
-        docker build \
-        -t ${{ secrets.DOCKER_USERNAME }}/devops-project:latest \
-        ./app
+      - name: Build Image
+        run: docker build -t nodejs-devops ./app
 
-    - name: Push Docker Image
-      run: |
-        docker push \
-        ${{ secrets.DOCKER_USERNAME }}/devops-project:latest
+      - name: Tag Image
+        run: docker tag nodejs-devops:latest $ECR_URI:latest
 
-    - name: Deploy EC2
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ubuntu
-        key: ${{ secrets.EC2_KEY }}
-        script: |
+      - name: Push Image
+        run: docker push $ECR_URI:latest
 
-          docker stop app || true
+      - name: Deploy to ECS
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE \
+            --force-new-deploymentname: Deploy Node.js App
 
-          docker rm app || true
+on:
+  push:
+    branches:
+      - main
 
-          docker pull \
-          ${{ secrets.DOCKER_USERNAME }}/devops-project:latest
+env:
+  AWS_REGION: ap-south-1
+  ECR_URI: 949449004484.dkr.ecr.ap-south-1.amazonaws.com/nodejs-devops
+  ECS_CLUSTER: nodejs-cluster
+  ECS_SERVICE: nodejs-service
 
-          docker run -d \
-          --name app \
-          -p 80:80 \
-          ${{ secrets.DOCKER_USERNAME }}/devops-project:latest
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # 🔥 MANUAL LOGIN (MOST RELIABLE FIX)
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region $AWS_REGION \
+          | docker login --username AWS --password-stdin 949449004484.dkr.ecr.ap-south-1.amazonaws.com
+
+      - name: Build Image
+        run: docker build -t nodejs-devops ./app
+
+      - name: Tag Image
+        run: docker tag nodejs-devops:latest $ECR_URI:latest
+
+      - name: Push Image
+        run: docker push $ECR_URI:latest
+
+      - name: Deploy to ECS
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE \
+            --force-new-deploymentname: Deploy Node.js App
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_URI: 949449004484.dkr.ecr.ap-south-1.amazonaws.com/nodejs-devops
+  ECS_CLUSTER: nodejs-cluster
+  ECS_SERVICE: nodejs-service
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # 🔥 MANUAL LOGIN (MOST RELIABLE FIX)
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region $AWS_REGION \
+          | docker login --username AWS --password-stdin 949449004484.dkr.ecr.ap-south-1.amazonaws.com
+
+      - name: Build Image
+        run: docker build -t nodejs-devops ./app
+
+      - name: Tag Image
+        run: docker tag nodejs-devops:latest $ECR_URI:latest
+
+      - name: Push Image
+        run: docker push $ECR_URI:latest
+
+      - name: Deploy to ECS
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE \
+            --force-new-deploymentname: Deploy Node.js App
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_URI: 949449004484.dkr.ecr.ap-south-1.amazonaws.com/nodejs-devops
+  ECS_CLUSTER: nodejs-cluster
+  ECS_SERVICE: nodejs-service
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # 🔥 MANUAL LOGIN (MOST RELIABLE FIX)
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region $AWS_REGION \
+          | docker login --username AWS --password-stdin 949449004484.dkr.ecr.ap-south-1.amazonaws.com
+
+      - name: Build Image
+        run: docker build -t nodejs-devops ./app
+
+      - name: Tag Image
+        run: docker tag nodejs-devops:latest $ECR_URI:latest
+
+      - name: Push Image
+        run: docker push $ECR_URI:latest
+
+      - name: Deploy to ECS
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE \
+            --force-new-deployment
